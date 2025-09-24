@@ -142,9 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => {
       console.error('Error fetching data:', err);
       const tbody = document.querySelector('tbody');
+      // Determine the number of columns dynamically
+      let colCount = 1;
+      const theadRow = document.querySelector('thead tr');
+      if (theadRow) {
+        colCount = theadRow.children.length;
+      }
       tbody.innerHTML = `
         <tr>
-          <td colspan="10" class="error">
+          <td colspan="${colCount}" class="error">
             <strong>Error loading data:</strong><br>
             ${err.message}<br><br>
             <small>Please ensure 'waterservices.usgs.gov.json' is placed in the application directory, data folder, Downloads, or Desktop.</small>
