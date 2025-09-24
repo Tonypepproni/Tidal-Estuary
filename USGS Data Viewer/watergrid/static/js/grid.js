@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             latitude: site.latitude.toFixed(4),
             longitude: site.longitude.toFixed(4),
             variableCount: site.variables.length,
-            temperature: temp ? `${temp.value} °C` : 'N/A',
+            temperature: temp ? `${temp.value} ${temp.unit}` : 'N/A',
             pH: ph ? ph.value : 'N/A',
             dissolvedOxygen: oxygen ? `${oxygen.value} ${oxygen.unit}` : 'N/A',
             salinity: salinity ? `${salinity.value} ${salinity.unit}` : 'N/A',
