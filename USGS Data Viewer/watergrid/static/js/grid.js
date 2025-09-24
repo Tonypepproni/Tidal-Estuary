@@ -62,8 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
           return {
             siteName: site.siteName,
             siteCode: site.siteCode,
-            latitude: site.latitude.toFixed(4),
-            longitude: site.longitude.toFixed(4),
+            latitude: Number.isFinite(site.latitude) ? site.latitude.toFixed(4) : 'N/A',
+            longitude: Number.isFinite(site.longitude) ? site.longitude.toFixed(4) : 'N/A',
             variableCount: site.variables.length,
             temperature: temp ? `${temp.value} ${temp.unit}` : 'N/A',
             pH: ph ? ph.value : 'N/A',
