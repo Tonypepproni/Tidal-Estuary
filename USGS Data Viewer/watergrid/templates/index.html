@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌊 Water Quality Monitor - USGS Data Explorer</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <style>
+    /* Water theme styling */
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      margin: 0;
+      padding: 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #333;
+    }
+    
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2.5rem;
+      font-weight: 300;
+    }
+    
+    h1::before {
+      content: "🌊 ";
+      font-size: 1.2em;
+    }
+    
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .table-container { 
+      overflow-x: auto; 
+      max-height: 70vh; 
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      min-width: 1200px;
+      background: white;
+    }
+    
+    th, td { 
+      padding: 0.75rem; 
+      border: none;
+      border-bottom: 1px solid #e1f5fe; 
+      white-space: nowrap; 
+      font-size: 0.9em; 
+    }
+    
+    th { 
+      background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
+      color: white;
+      position: sticky; 
+      top: 0; 
+      z-index: 10;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8em;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    td:first-child { 
+      max-width: 200px; 
+      white-space: normal; 
+      word-wrap: break-word;
+      font-weight: 500;
+      color: #1565c0;
+    }
+    
+    tbody tr:nth-child(even) { 
+      background: linear-gradient(90deg, #f8fbff 0%, #e3f2fd 100%); 
+    }
+    
+    tbody tr:hover { 
+      background: linear-gradient(90deg, #e1f5fe 0%, #b3e5fc 100%);
+      transform: scale(1.001);
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    }
+    
+    .loading, .error { 
+      text-align: center; 
+      padding: 3rem; 
+      font-style: italic;
+      font-size: 1.1em;
+    }
+    
+    .loading {
+      color: #1976d2;
+    }
+    
+    .error {
+      color: #d32f2f;
+      background: rgba(255, 235, 238, 0.8);
+      border-radius: 8px;
+      margin: 1rem;
+    }
+    
+    .sr-only { 
+      position: absolute; 
+      width: 1px; 
+      height: 1px; 
+      padding: 0; 
+      overflow: hidden; 
+      clip: rect(0,0,0,0); 
+      white-space: nowrap; 
+      border: 0; 
+    }
+    
+    /* Water animation effect */
+    @keyframes wave {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    .loading::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #2196f3, transparent);
+      animation: wave 2s infinite;
+    }
+    
+    /* Value styling for different measurement types */
+    td:nth-child(6) { color: #ff5722; font-weight: 500; } /* Temperature */
+    td:nth-child(7) { color: #9c27b0; font-weight: 500; } /* pH */
+    td:nth-child(8) { color: #4caf50; font-weight: 500; } /* Dissolved Oxygen */
+    td:nth-child(9) { color: #00bcd4; font-weight: 500; } /* Salinity */
+    td:nth-child(10) { color: #795548; font-weight: 500; } /* Water Level */
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      body { padding: 0.5rem; }
+      h1 { font-size: 2rem; }
+      .container { padding: 1rem; border-radius: 10px; }
+      th, td { padding: 0.5rem; font-size: 0.8em; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Water Quality Monitor</h1>
+  <div class="container">
+    <div role="region" aria-labelledby="grid-title">
+      <h2 id="grid-title" class="sr-only">Data grid</h2>
+      <div class="table-container">
+        <table role="grid" aria-live="polite">
+          <thead>
+            <tr role="row">
+              <!-- Column headers will be injected -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr id="loading-row">
+              <td class="loading">Loading data…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script src="/static/js/grid.js" defer></script>
+</body>
+</html>
