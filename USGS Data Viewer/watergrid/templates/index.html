@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌊 Water Quality Monitor - USGS Data Explorer</title>
+  <title>🌊 USGS Water Data Explorer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
   <style>
-    /* Water theme styling */
+    * { box-sizing: border-box; }
+    
     body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       margin: 0;
       padding: 1rem;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -20,163 +22,281 @@
     h1 {
       color: white;
       text-align: center;
-      margin-bottom: 2rem;
+      margin: 0 0 2rem 0;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
       font-size: 2.5rem;
       font-weight: 300;
     }
     
-    h1::before {
-      content: "🌊 ";
-      font-size: 1.2em;
-    }
-    
     .container {
+      max-width: 1400px;
+      margin: 0 auto;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
       padding: 2rem;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    .table-container { 
-      overflow-x: auto; 
-      max-height: 70vh; 
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    table { 
-      width: 100%; 
-      border-collapse: collapse; 
-      min-width: 1200px;
-      background: white;
-    }
-    
-    th, td { 
-      padding: 0.75rem; 
-      border: none;
-      border-bottom: 1px solid #e1f5fe; 
-      white-space: nowrap; 
-      font-size: 0.9em; 
-    }
-    
-    th { 
+    .status-bar {
       background: linear-gradient(135deg, #1e88e5 0%, #1565c0 100%);
       color: white;
-      position: sticky; 
-      top: 0; 
-      z-index: 10;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .status-label {
       font-weight: 600;
-      text-transform: uppercase;
-      font-size: 0.8em;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      opacity: 0.9;
     }
     
-    td:first-child { 
-      max-width: 200px; 
-      white-space: normal; 
-      word-wrap: break-word;
-      font-weight: 500;
-      color: #1565c0;
+    .controls {
+      background: #f5f5f5;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
     }
     
-    tbody tr:nth-child(even) { 
-      background: linear-gradient(90deg, #f8fbff 0%, #e3f2fd 100%); 
+    .control-group {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
     }
     
-    tbody tr:hover { 
-      background: linear-gradient(90deg, #e1f5fe 0%, #b3e5fc 100%);
-      transform: scale(1.001);
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    .control-group:last-child {
+      margin-bottom: 0;
     }
     
-    .loading, .error { 
-      text-align: center; 
-      padding: 3rem; 
-      font-style: italic;
-      font-size: 1.1em;
+    .control-group label {
+      font-weight: 600;
+      color: #555;
+      min-width: 120px;
     }
     
-    .loading {
+    .slider-container {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #ddd;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1976d2;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #1976d2;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .time-display {
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
       color: #1976d2;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      background: white;
+      border-radius: 5px;
+      border: 2px solid #1976d2;
     }
     
-    .error {
-      color: #d32f2f;
-      background: rgba(255, 235, 238, 0.8);
-      border-radius: 8px;
-      margin: 1rem;
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
     }
     
-    .sr-only { 
-      position: absolute; 
-      width: 1px; 
-      height: 1px; 
-      padding: 0; 
-      overflow: hidden; 
-      clip: rect(0,0,0,0); 
-      white-space: nowrap; 
-      border: 0; 
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 6px;
+      background: #1976d2;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
     }
     
-    /* Water animation effect */
-    @keyframes wave {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+    button:hover {
+      background: #1565c0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     
-    .loading::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, #2196f3, transparent);
-      animation: wave 2s infinite;
+    button:active {
+      transform: translateY(0);
     }
     
-    /* Value styling for different measurement types */
-    td:nth-child(6) { color: #ff5722; font-weight: 500; } /* Temperature */
-    td:nth-child(7) { color: #9c27b0; font-weight: 500; } /* pH */
-    td:nth-child(8) { color: #4caf50; font-weight: 500; } /* Dissolved Oxygen */
-    td:nth-child(9) { color: #00bcd4; font-weight: 500; } /* Salinity */
-    td:nth-child(10) { color: #795548; font-weight: 500; } /* Water Level */
+    button.secondary {
+      background: #757575;
+    }
     
-    /* Responsive design */
+    button.secondary:hover {
+      background: #616161;
+    }
+    
+    .latest-values {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .value-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      border-left: 4px solid #1976d2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+    
+    .value-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .value-card h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.9rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .value-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1976d2;
+      margin: 0;
+    }
+    
+    .value-card .unit {
+      font-size: 1rem;
+      color: #999;
+      margin-left: 0.3rem;
+    }
+    
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .chart-container {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .chart-container h3 {
+      margin: 0 0 1rem 0;
+      color: #333;
+      font-size: 1.1rem;
+    }
+    
+    .chart-wrapper {
+      position: relative;
+      height: 300px;
+    }
+    
+    .loading, .error {
+      text-align: center;
+      padding: 3rem;
+      font-size: 1.1rem;
+    }
+    
+    .loading { color: #1976d2; }
+    .error { color: #d32f2f; background: rgba(255, 235, 238, 0.8); border-radius: 8px; }
+    
     @media (max-width: 768px) {
       body { padding: 0.5rem; }
       h1 { font-size: 2rem; }
-      .container { padding: 1rem; border-radius: 10px; }
-      th, td { padding: 0.5rem; font-size: 0.8em; }
+      .container { padding: 1rem; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .latest-values { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <h1>Water Quality Monitor</h1>
+  <h1>🌊 USGS Water Data Explorer</h1>
   <div class="container">
-    <div role="region" aria-labelledby="grid-title">
-      <h2 id="grid-title" class="sr-only">Data grid</h2>
-      <div class="table-container">
-        <table role="grid" aria-live="polite">
-          <thead>
-            <tr role="row">
-              <!-- Column headers will be injected -->
-            </tr>
-          </thead>
-          <tbody>
-            <tr id="loading-row">
-              <td class="loading">Loading data…</td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="status-bar">
+      <div class="status-item">
+        <span class="status-label">Viewing Site:</span>
+        <select id="site-selector" style="padding: 0.5rem; border-radius: 5px; border: none; font-weight: bold; background: white; color: #1976d2; cursor: pointer;">
+          <option value="all">All Sites</option>
+        </select>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Last Update:</span>
+        <span id="last-update">Loading...</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Total Records:</span>
+        <span id="record-count">0</span>
       </div>
     </div>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="time-slider">Time Navigation:</label>
+        <div class="slider-container">
+          <input type="range" id="time-slider" min="0" max="100" value="100" step="1">
+        </div>
+        <span class="time-display" id="current-time">--</span>
+      </div>
+      <div class="control-group">
+        <label>Quick Actions:</label>
+        <div class="btn-group">
+          <button onclick="app.showLatest()">Latest</button>
+          <button onclick="app.stepBack()" class="secondary">← Back</button>
+          <button onclick="app.stepForward()" class="secondary">Forward →</button>
+          <button onclick="app.playTimeline()" id="play-btn" class="secondary">▶ Play</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="latest-values" class="latest-values">
+      <div class="loading">Loading data...</div>
+    </div>
+    
+    <div id="charts-grid" class="charts-grid"></div>
   </div>
-  <script src="/static/js/grid.js" defer></script>
+  
+  <script src="/static/js/grid.js"></script>
 </body>
 </html>
