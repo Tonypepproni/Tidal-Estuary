@@ -16,24 +16,27 @@ parameter_codes = [
 
 df = nwis.get_record(sites='01376520',service='iv',start='2025-9-21',end='2025-9-28')
 
-df = df.rename(columns=lambda c: c if c == "site_no" else c.replace("_hrecos", "").replace("_cd", "_cd:") if c.endswith("_cd") else {
-    "00010": "Water Temperature (°C)",
-    "00020": "Air Temperature (°C)",
-    "00036": "Specific Conductance (µS/cm)",
-    "00045": "Precipitation (inches)",
-    "00052": "Turbidity (NTU)",
-    "00095": "Specific Conductance (µS/cm @25°C)",
-    "00300": "Dissolved Oxygen (mg/L)",
-    "00301": "Dissolved Oxygen Saturation (%)",
-    "00400": "pH (std units)",
-    "61727": "Salinity (ppt)",
-    "62620": "Gage Height (ft)",
-    "63680": "Wind Speed (mph)",
-    "75969": "Chlorophyll a (µg/L)",
-    "82127": "FDOM (ppb QSU)",
-    "90860": "Battery Voltage (V)"
+df = df.rename(columns=lambda c: c if c == "site_no" else c.replace("_hrecos", "").replace("_cd", "cd") if c.endswith("cd") else {
+    "00010": "water_temperature",
+    "00020": "air_temperature",
+    "00036": "specific_conductance",
+    "00045": "precipitation",
+    "00052": "turbidity",
+    "00095": "specific_conductance",
+    "00300": "dissolved_oxygen",
+    "00301": "dissolved_oxygen_saturation",
+    "00400": "pH",
+    "61727": "salinity",
+    "62620": "gage_height",
+    "63680": "wind_speed",
+    "75969": "chlorophyll_a",
+    "82127": "FDOM",
+    "90860": "battery_voltage"
 }.get(c.replace("_hrecos", "").replace("_cd", ""), c))
 
-df = df.drop(columns=["site_no"])
 
-df.to_json('data.json',indent=4)
+df = df[df["gage_height"].notna()]
+
+print(df.head(10))
+
+#df.to_json('data.json',indent=4)
