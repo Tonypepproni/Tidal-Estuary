@@ -64,7 +64,7 @@ def get_station_data(site_code):
     if orphans:
         df = df.drop(columns=orphans)
         
-    print(df[[c for c in ["gage_height","water_temperature"] if c in df.columns]].head(10))
+    print(df[["gage_height","water_temperature"]].head(10))
 # prints the first 10 lines of code. Selects columns present 
 # b/c df doesnt have columns for gage_height
 
