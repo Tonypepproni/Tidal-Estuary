@@ -15,6 +15,8 @@ parameter_codes = [
     "00060",  # Discharge, streamflow (cfs)
 ]
 
+site_num=['01376520']
+
 possible_nulls=["","NaN","null","None","--","999999",999999,-999999,'-999999']
 
 
@@ -47,7 +49,5 @@ def get_station_data(site_code):
 
     df.to_json(f'data{site_code}.json',indent=4)
 
-
-sitenum='01376520'
-
-get_station_data(sitenum)
+for site in site_num:
+    get_station_data(site)
