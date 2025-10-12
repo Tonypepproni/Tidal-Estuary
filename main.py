@@ -50,7 +50,7 @@ def get_station_data(site_code):
         df[column_name] = df[column_name].ffill().bfill() #if theres a null it will fill in from the code above it or below it 
         
     # 1) Drop battery voltage (and its flag), if present
-    df = df.drop(columns=[c for c in df.columns if c.startswith("battery_voltage")], errors="ignore")
+    df = df.drop(columns=[c for c in df.columns if c in ["battery_voltage","site_no"]], errors="ignore")
 
     # 2) Drop columns that are entirely empty (all NaN)
     df = df.dropna(axis="columns", how="all")
@@ -59,7 +59,7 @@ def get_station_data(site_code):
     #when the matching measurement column (water_temp) is missing
     #water_temp = numbers 
     #water_temp_cd = the status codes for the numbers. Theyre not useful, theyre just labels with no data 
-    flag_cols = [c for c in df.columns if c.endswith("_cd")]
+    flag_cols = [c for c in df.columns if c.endswith(("cd",'_hrecos'))]
     orphans = [c for c in flag_cols if c[:-3] not in df.columns]
     if orphans:
         df = df.drop(columns=orphans)
