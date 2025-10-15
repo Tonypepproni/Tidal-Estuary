@@ -37,8 +37,8 @@ def get_station_data(site_code):
         "00300": "dissolved_oxygen",
         "00301": "dissolved_oxygen_saturation",
         "00400": "pH",
-        "00480": "salinity",          # <-- fixed (was 61727)
-        "00065": "gage_height",       # <-- fixed (was 62620)
+        "61727": "salinity",          # <-- fixed (was 61727)
+        "62620": "gage_height",       # <-- fixed (was 62620)
         "63680": "turbidity_ntu",     # <-- fixed (was wind_speed)
         "75969": "chlorophyll_a",
         "82127": "FDOM",
@@ -79,6 +79,11 @@ def noaa(station, start, end):
     water_temp = st.get_data(product="water_temperature", begin_date=start, end_date=end, units="metric", time_zone="gmt")
     water_salinity = st.get_data(product="salinity", begin_date=start, end_date=end,units="metric", time_zone="gmt")
 
+    water_level=water_level.rename(columns={'q':'error_code'})
+
+    print(water_level.columns)
+    print(water_level.head(10))
+
     # helper to clean each one
     def tidy(df, name):
         
@@ -95,5 +100,7 @@ def noaa(station, start, end):
  # calling from a specific site since we are only calling from one site currently 
 noaa(8518962,'10/15/2025','10/16/2025')
 
+'''
 for site in site_num:
     get_station_data(site)
+'''
