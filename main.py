@@ -75,9 +75,9 @@ def noaa(station, start, end):
     st = Station(station)
 
     # pull  data ( columns are "t" and "v")
-    water_level = st.get_data(product="water_level", begin_date=start, end_date=end, units="english", time_zone="gmt", datum="MLLW")[["t","v"]]
-    water_temp = st.get_data(product="water_temperature", begin_date=start, end_date=end, units="metric", time_zone="gmt")[["t","v"]]
-    water_salinity = st.get_data(product="salinity", begin_date=start, end_date=end,units="metric", time_zone="gmt")[["t","v"]]
+    water_level = st.get_data(product="water_level", begin_date=start, end_date=end, units="english", time_zone="gmt", datum="MLLW")
+    water_temp = st.get_data(product="water_temperature", begin_date=start, end_date=end, units="metric", time_zone="gmt")
+    water_salinity = st.get_data(product="salinity", begin_date=start, end_date=end,units="metric", time_zone="gmt")
 
     # helper to clean each one
     def tidy(df, name):
@@ -93,5 +93,7 @@ def noaa(station, start, end):
         return df.dropna().set_index("datetime").sort_index()
 
  # calling from a specific site since we are only calling from one site currently 
+noaa(8518962,'10/15/2025','10/16/2025')
+
 for site in site_num:
     get_station_data(site)
