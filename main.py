@@ -79,10 +79,11 @@ def noaa(station, start, end):
     water_temp = st.get_data(product="water_temperature", begin_date=start, end_date=end, units="metric", time_zone="gmt")
     water_salinity = st.get_data(product="salinity", begin_date=start, end_date=end,units="metric", time_zone="gmt")
 
-    water_level=water_level.rename(columns={'q':'error_code'})
+    water_level=water_level.rename(columns={'v':'water_level','s':'stnadard_devation','f':'data_flags','q':'error_code'})
 
     print(water_level.columns)
     print(water_level.head(10))
+    print(water_temp.head(10))
 
     # helper to clean each one
     def tidy(df, name):
