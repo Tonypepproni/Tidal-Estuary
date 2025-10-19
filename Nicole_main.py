@@ -1,0 +1,96 @@
+import dataretrieval.nwis as nwis
+import pandas as pd
+import numpy as np
+
+#It pulls instantaneous (iv) data from USGS NWIS for one site (01376520) over 2025-09-21 →
+# 2025-09-28, tries to make the column names human-readable, fills in missing values, prints two columns,
+# then saves everything to a JSON file named data01376520.json.
+#calling pier 25
+parameter_codes = [
+    "00010",  # Temperature, water (°C)
+    "00011",  # Temperature, air (°C)
+    "00300",  # Dissolved oxygen (mg/L)
+    "00301",  # Dissolved oxygen, percent saturation
+    "00065",  # Gage height (ft)  <-- fixed (was 62620)
+    "62620",  # added 62620 b/c gage height wasn't reporting
+    "62623",  # Tide stage, feet  <-- fixed (was 62614)
+    "00480",  # Salinity, water (ppt)
+    "63680",  # Turbidity, water (NTU)
+    "82362",  # Turbidity, FNU
+    "00060",  # Discharge, streamflow (cfs)
+]
+
+possible_nulls=["","NaN","null","None","--","999999",999999,-999999,'-999999'] #possible nulls youll see 
+site_num = ['01376520']
+
+def get_station_data(site_code):
+
+    df = nwis.get_record(sites=site_code,service='iv',start='2025-9-21',end='2025-9-28', parameterCd=",".join(parameter_codes)) 
+    #creates a df, pull from nwis and pulls from get_record
+
+    df = df.rename(columns=lambda c: c if c == "site_no" else c.replace("_hrecos", "").replace("_cd", "cd") if c.endswith("cd") else {
+        "00010": "water_temperature",
+        "00020": "air_temperature",
+        "00045": "precipitation",
+        "00052": "turbidity",
+        "00095": "specific_conductance_at_25",
+        "00300": "dissolved_oxygen",
+        "00301": "dissolved_oxygen_saturation",
+        "00400": "pH",
+        "00480": "salinity",          # <-- fixed (was 61727)
+        "00065": "gage_height",       # <-- fixed (was 62620)
+        "63680": "turbidity_ntu",     # <-- fixed (was wind_speed)
+        "75969": "chlorophyll_a",
+        "82127": "FDOM",
+        "90860": "battery_voltage"
+    }.get(c.replace("_hrecos", "").replace("_cd", ""), c)) 
+    #replaces the parameter codes with word meanings so we can comprehend what the codea are 
+
+     # 1) Drop battery voltage (and its flag), if present
+    df = df.drop(columns=[c for c in df.columns if c in ["battery_voltage","site_no"]], errors="ignore")
+
+
+    # 2) Drop columns that are entirely empty (all NaN)
+    df = df.dropna(axis="columns", how="all")
+
+    # 3) Drop orphan flag columns: columns that end with _cd like (water_temp_cd)
+    #when the matching measurement column (water_temp) is missing
+    #water_temp = numbers 
+    #water_temp_cd = the status codes for the numbers. Theyre not useful, theyre just labels with no data 
+    flag_cols = [c for c in df.columns if c.endswith("_cd")]
+    #for any column in df.columns that ends with cd is a cd column
+    #it would make a list of those cd columns 
+    orphans = [c for c in flag_cols if c[:-3] not in df.columns]
+    #finds the orphan among those flags. those r the cd colums whose matching measurements r missing    
+    if orphans:
+        df = df.drop(columns=orphans)
+        
+    for column_name in df.columns:
+        df[column_name] = df[column_name].replace(possible_nulls, np.nan)
+        #removes possible nulls 
+        df[column_name] = df[column_name].ffill().bfill() 
+        #if theres a null it will fill in from the code above it or below it 
+
+    #df = df.replace(possible_nulls, np.nan).ffill().bfill()
+    df = df.dropna(axis="columns", how="all")
+        
+        
+    print(df[[c for c in ["gage_height","water_temperature"] if c in df.columns]].head(10))
+# prints the first 10 lines of code. Selects columns present 
+# b/c df doesnt have columns for gage_height
+
+    df.to_json(f'data{site_code}.json',indent=4)
+
+def noaa(station):
+    print('H')
+
+
+
+ # calling from a specific site since we are only calling from one site currently 
+for site in site_num:
+    get_station_data(site)
+
+
+    
+
+
