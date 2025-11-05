@@ -125,9 +125,8 @@ def get_station_data(site_code, start_date_str=None, end_date_str=None):
     # per-day snapshot + pulling latest ===
     # ymd = yyyymmdd, example: "2025-09-21" → "20250921"
     ymd = start.replace("-", "")                            # use start date for filename tag (YYYYMMDD)
-    df.to_json(f'data{site_code}_{ymd}.json',indent=4)      #  dated snapshot
-    df.to_json(f'data{site_code}_latest.json',indent=4)     # pulling latest
-    # 👆 So at the end of this function, you always have:
+    df.to_json(f'data{site_code}_{ymd}.json',indent=4)      #  dated snapshot     # pulling latest
+    #  So at the end of this function, you always have:
     # - one JSON with a date in the name (for history)
     # - one JSON called ..._latest.json (for the app to always read)
 
@@ -140,7 +139,7 @@ def noaa(station):
 
  # calling from a specific site since we are only calling from one site currently 
 # run once immediately for "yesterday" instead of a fixed date  
-def _yesterday_window():
+def get_date():
     """
     ADDED: Return date strings for [yesterday, today) in local time as ('YYYY-MM-DD', 'YYYY-MM-DD').
     This is useful because we want to run this script every morning and pull JUST the previous day.
@@ -153,21 +152,14 @@ def _yesterday_window():
     return start.isoformat(), end.isoformat()  # 'YYYY-MM-DD'
 
 #  simple helper to compute sleep time until next 07:00:00 local
-def _seconds_until(hour=7, minute=0, second=0):
-   
-    now = datetime.now()
-    target = now.replace(hour=hour, minute=minute, second=second, microsecond=0)
-    if target <= now:
-        target = target + timedelta(days=1)
-    return (target - now).total_seconds()
 
 #  run a single “yesterday” pull for all configured sites
-def run_yesterday_for_all_sites():
+def pull_all_sites():
     """
     Compute yesterday’s window, log it, and call get_station_data(site, start, end) for each site.
     This is the MAIN “do the thing” function.
     """
-    start_str, end_str = _yesterday_window()
+    start_str, end_str = get_date()
     for site in site_num: 
         get_station_data(site, start_str, end_str)
     print("Done.\n")
@@ -179,7 +171,7 @@ def run_once_for_cron():
     This is meant to be called by cron.
     It just runs the daily job ONCE and then the program ends.
     """
-    run_yesterday_for_all_sites()
+    pull_all_sites()
     # no while True, no sleeping — just exit
 
 
