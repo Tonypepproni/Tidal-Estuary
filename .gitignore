@@ -1,0 +1,67 @@
+# --- Unity Core ---
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# --- Unity Auto Files ---
+*.pidb
+*.pidb.meta
+*.pdb
+*.pdb.meta
+*.mdb
+*.mdb.meta
+*.booproj
+*.unityproj
+*.user
+*.userprefs
+*.suo
+*.tmp
+*.opendb
+*.VC.db
+*.DS_Store
+
+# --- VS & Rider ---
+.vs/
+*.csproj
+*.sln
+*.proj
+.gradle/
+ExportedObj/
+.consulo/
+*.DotSettings.user
+
+# --- Addressables ---
+/ServerData
+[Aa]ssets/StreamingAssets/aa*
+[Aa]ssets/AddressableAssetsData/**/*.bin*
+[Aa]ssets/AddressableAssetsData/link.xml*
+[Aa]ssets/Addressables_Temp*
+
+# --- Visual Scripting ---
+[Aa]ssets/Unity.VisualScripting.Generated/
+
+# --- Builds ---
+*.apk
+*.aab
+*.app
+*.exe
+*.ipa
+
+# --- HUGE FILE FORMATS YOU SHOULD NEVER COMMIT ---
+# (your repo was filled with these)
+*.tif
+*.tiff
+*.tg*
+
+# Ignore large asset packs
+Assets/NatureManufacture Assets/**
+Assets/Terrain/
+Assets/SkySeries Freebie/
+Assets/YughuesFreeSandMaterials/
+Assets/Bitgem/

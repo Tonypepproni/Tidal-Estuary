@@ -1,0 +1,3 @@
+repository "3Dgame/T-Hudson@2475880695532@cloud"
+  path "/"
+    smartbranch "/main"
