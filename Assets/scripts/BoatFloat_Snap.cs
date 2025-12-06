@@ -33,7 +33,7 @@ public class BoatFloat_Snap : MonoBehaviour
 
         float dx = local.x - crestLocal.x;
         float dz = local.z - crestLocal.z;
-        float r2 = dx*dx + dz*dz;
+        float r2 = dx * dx + dz * dz;
         float bulgeY = moveBulge.height * Mathf.Exp(-r2 / (2f * sigma * sigma));
 
         // Base water plane world Y (important since you moved the plane below terrain)
@@ -44,5 +44,12 @@ public class BoatFloat_Snap : MonoBehaviour
 
         Vector3 p = rb.position; p.y = targetY;
         rb.MovePosition(p);  // only change Y; your path script handles XZ
+
+        // Fix floating drift on WebGL
+#if UNITY_WEBGL
+        targetY = Mathf.Lerp(rb.position.y, targetY, 0.85f);
+#endif
+        Debug.Log("WaterY=" + targetY);
+
     }
 }

@@ -60,8 +60,6 @@ ExportedObj/
 *.tg*
 
 # Ignore large asset packs
-Assets/NatureManufacture Assets/**
 Assets/Terrain/
 Assets/SkySeries Freebie/
 Assets/YughuesFreeSandMaterials/
-Assets/Bitgem/

@@ -42,6 +42,13 @@ public class MoveBulge : MonoBehaviour
 
     void OnEnable()
     {
+        float dt = Time.deltaTime;
+
+        // WebGL sometimes reports unstable delta time
+#if UNITY_WEBGL
+        dt *= 1.2f;   // smooth correction factor
+#endif
+
         _mf = GetComponent<MeshFilter>();
 
         if (Application.isPlaying)
@@ -141,6 +148,11 @@ public class MoveBulge : MonoBehaviour
         _mesh.vertices = _deformed;
         if (recalcNormals) _mesh.RecalculateNormals();
         _mesh.RecalculateBounds();
+
+#if UNITY_WEBGL
+        Debug.Log($"SIGMA:{sigma}  radius:{radius} sharpness:{sharpness}");
+#endif
+
     }
 
     // ------- path helpers -------
@@ -196,24 +208,42 @@ public class MoveBulge : MonoBehaviour
 
     /// Water surface height (WORLD Y) at a world XZ point for the current frame,
     /// using the same Gaussian you already use to deform the plane.
-    public float GetWaterHeightAtWorldXZ(float wx, float wz)
+    public float GetActualMeshHeightAtWorldXZ(Vector3 worldPos)
     {
-        // Crest (world), convert both crest & query point into the plane's LOCAL space
-        Vector3 crestWorld = EvaluatePathAt(_s);
-        Vector3 crestLocal = transform.InverseTransformPoint(crestWorld);
+        if (_mesh == null || _deformed == null)
+            return transform.position.y;
 
-        Vector3 queryLocal = transform.InverseTransformPoint(new Vector3(wx, transform.position.y, wz));
+        // Convert world → local
+        Vector3 local = transform.InverseTransformPoint(worldPos);
 
-        float sigma = Mathf.Max(0.001f, radius * sharpness);
-        float dx = queryLocal.x - crestLocal.x;
-        float dz = queryLocal.z - crestLocal.z;
-        float r2 = dx * dx + dz * dz;
+        // Find closest vertex
+        float best = float.MaxValue;
+        float height = 0f;
 
-        float yBulge = height * Mathf.Exp(-r2 / (2f * sigma * sigma));
+        for (int i = 0; i < _deformed.Length; i++)
+        {
+            float dx = _deformed[i].x - local.x;
+            float dz = _deformed[i].z - local.z;
+            float dist = dx * dx + dz * dz;
 
-        // Base plane Y in world (works even if you moved the plane below terrain)
-        float baseY = transform.TransformPoint(Vector3.zero).y;
-        return baseY + yBulge;
+            if (dist < best)
+            {
+                best = dist;
+                height = _deformed[i].y;
+            }
+        }
+
+        // Convert local → world height
+        Vector3 worldH = transform.TransformPoint(new Vector3(0f, height, 0f));
+        return worldH.y;
+    }
+
+
+    /// Water height at world XZ, wrapper for easier boat code.
+    public float GetWaterHeightAtWorldXZ(float x, float z)
+    {
+        Vector3 wp = new Vector3(x, 0f, z);
+        return GetActualMeshHeightAtWorldXZ(wp);
     }
 
 }
