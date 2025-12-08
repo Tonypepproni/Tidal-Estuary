@@ -4,7 +4,7 @@ using UnityEngine;
 /*To whom ever this may concern,
 I wish you good luck. 
 If you can decipher all this code I dont know how it ended up like this but 
-it did. My name is Hector Eligio it is 12/17/25 I graduate from Pace University in 10 days, 
+it did. My name is Hector Eligio it is 12/7/25 I graduate from Pace University in 10 days, 
 I created this whole project from top to bottom, it drove me insane. 
 GodSpeed if you intend on working further on this project.*/
 
